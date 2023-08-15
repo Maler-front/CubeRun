@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,7 +13,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject _player;
     private float screen;
     private bool isRoad;
-                                                       //Проверка на нахождении в воздухе
+    private InputManager inputManager;
+
+    public static Func<int, float> onTouched;
+
     private void OnCollisionEnter(Collision collision) //На земле
     {
         if (collision.gameObject.tag == "Road" || collision.gameObject.CompareTag("Road"))
@@ -37,9 +41,9 @@ public class PlayerController : MonoBehaviour
         
         while (i < Input.touchCount && i < 2)
         {
-            if (Input.GetTouch(i).position.x > screen / 2 )
+            if (onTouched?.Invoke(i) > screen / 2 )
                 Move(1.0f);
-            else if (Input.GetTouch(i).position.x < screen / 2)
+            else if (onTouched?.Invoke(i) < screen / 2)
                 Move(-1.0f);
 
             ++i;
@@ -48,24 +52,24 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        _rigidbody.AddForce(0, 0, _speed * Time.deltaTime); //Ускорение вперед
+        _rigidbody.AddForce(0, 0, _speed * Time.deltaTime);
 
-        if (Input.GetKey("a"))                     //Движение влево
+        if (Input.GetKey("a"))
             Move(-1.0f);
-        else if (Input.GetKey("d"))                     //Движение вправо
+        else if (Input.GetKey("d"))
             Move(1.0f);
 
-        if (isRoad)                                //Если на земле
+        if (isRoad)
         {
-            if (Input.GetKey("e"))                 //Прыгаем на "е"
+            if (Input.GetKey("e"))
                 Jump();
 
-            else if (Input.touchCount == 2)             //Прыгаем на два касания
+            else if (Input.touchCount == 2)
                 Jump();
         }
     }
 
-    private void Jump()                            //Метод на прыжок
+    private void Jump()
     {
         _rigidbody.AddForce(0, _jumpHeight * Time.deltaTime, 0, ForceMode.VelocityChange);
     }
