@@ -13,7 +13,7 @@ public class PlayerCollision : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.collider.tag == "Wall")
+        if(collision.collider.tag == "Wall" || collision.collider.tag == "End")
         {
             Debug.Log(collision.collider.name);
             movement.enabled = false;
