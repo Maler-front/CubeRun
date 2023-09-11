@@ -21,59 +21,23 @@ public class PlayerController : MonoBehaviour
     {
         _rigidbody = _player.GetComponent<Rigidbody>();
 
-        //PlayerCollision.TouchingPlayerWithObjects
         InputManager.OnOneFingerScreenTouched += (x) => Move(x);
         InputManager.OnTwoFingerScreenTouched += Jump;
     }
-
-    /*
-    private void Start()
-    {
-        _rigidbody.AddForce(0, 0, _speedForward * Time.deltaTime);
-    }
-    */
-
-    /*
-    private void Update()
-    {
-        
-
-        if (Time.time > nextActionTime)
-        {
-            nextActionTime += period;
-            Debug.Log("Прошло 10 секунд");
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 0);
-            //Time.timeScale = 1f;
-            // execute block of code here
-        }
-    }
-    */
 
     private void FixedUpdate()
     {
         RayOnHit();
 
-        Debug.Log($"onHit {_onHit}");
-        Debug.Log($"onHitLong {_onHitLong}");
-
         if (!_onHit && !_onHitLong)
         {
             _timeLeft -= Time.deltaTime;
             if (_timeLeft < 0)
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 0);
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 0);
         }
-
-        /*
-        if (!_onHit && !_onHitLong)
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 0);
-        }
-        */
 
         _rigidbody.AddForce(0, 0, _speedForward * Time.deltaTime);
     }
-
-
 
     private void RayOnHit()
     {
@@ -91,7 +55,7 @@ public class PlayerController : MonoBehaviour
 
     private void Move(float HorizontalMovement)
     {
-        if (_onHit)
+        if (_onHit && !_onHitLong)
         {
             int sign = Screen.width / 2 > HorizontalMovement ? -1 : 1;
             _rigidbody.MovePosition(_rigidbody.position + Vector3.right * sign * _speed * Time.fixedDeltaTime);
