@@ -1,24 +1,18 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using UnityEngine;
-using UnityEngine.Device;
 
 public class InputManager : MonoBehaviour
 {
+    public static event Action<float> OnOneFingerScreenTouched;
+    public static event Action OnTwoFingerScreenTouched;
 
-    private void OnEnable()
+    private void Update()
     {
-        PlayerController.onTouched += TouchControl;
-    }
-    private void OnDisable()
-    {
-        PlayerController.onTouched -= TouchControl;
-    }
+        if (Input.touchCount == 1)
+            OnOneFingerScreenTouched?.Invoke(Input.GetTouch(0).position.x);
 
-    private float TouchControl(int i)
-    {
-       return Input.GetTouch(i).position.x;
+        if (Input.touchCount == 2)
+            OnTwoFingerScreenTouched?.Invoke();
     }
 }
