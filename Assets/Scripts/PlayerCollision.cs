@@ -22,7 +22,7 @@ public class PlayerCollision : MonoBehaviour
 
     private void Update()
     {
-        if(!movement.enabled && completeLevelUI)
+        if(!movement.enabled && !completeLevelUI)
         {
             _timeLeft -= Time.deltaTime;
 
