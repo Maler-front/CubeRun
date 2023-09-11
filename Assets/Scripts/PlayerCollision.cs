@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class PlayerCollision : MonoBehaviour
 {
+    public GameObject completeLevelUI;
     public PlayerController movement;
 
     private float _timeLeft = 0.7f;
@@ -21,7 +22,7 @@ public class PlayerCollision : MonoBehaviour
 
     private void Update()
     {
-        if(!movement.enabled)
+        if(!movement.enabled && completeLevelUI)
         {
             _timeLeft -= Time.deltaTime;
 
