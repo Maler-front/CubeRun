@@ -7,75 +7,41 @@ using System;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Rigidbody _rigidbody;
-    [SerializeField] private float _speed;                                //Скорость
-    [SerializeField] private float _pivot;                                //Сила поворота
-    [SerializeField] private float _jumpHeight;                           //Сила прыжка
+    [SerializeField] private float _speed;
+    [SerializeField] private float _speedForward;                               
+    [SerializeField] private float _jumpHeight;                           
     [SerializeField] private GameObject _player;
-    private float screen;
-    private bool isRoad;
-    private InputManager inputManager;
+    [SerializeField] private float _rayDistance;
+    private bool onHit;
 
-    public static Func<int, float> onTouched;
-
-    private void OnCollisionEnter(Collision collision) //На земле
+    private void Awake()
     {
-        if (collision.gameObject.tag == "Road" || collision.gameObject.CompareTag("Road"))
-            isRoad = true;
-    }
-
-    private void OnCollisionExit(Collision collision) //Летим
-    {
-        if (collision.gameObject.tag == "Road" || collision.gameObject.CompareTag("Road"))
-            isRoad = false;
-    }
-
-    private void Start()
-    {
-        screen = Screen.width;
         _rigidbody = _player.GetComponent<Rigidbody>();
+        InputManager.OnOneFingerScreenTouched += (x) => Move(x);
+        InputManager.OnTwoFingerScreenTouched += Jump;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        int i = 0;
-        
-        while (i < Input.touchCount && i < 2)
-        {
-            if (onTouched?.Invoke(i) > screen / 2 )
-                Move(1.0f);
-            else if (onTouched?.Invoke(i) < screen / 2)
-                Move(-1.0f);
+        Ray ray = new Ray(transform.position, -transform.up);
+        Debug.DrawRay(transform.position, -transform.up * _rayDistance, Color.blue);
+        onHit = Physics.Raycast(ray, _rayDistance);
 
-            ++i;
-        }
-    }
-
-    void FixedUpdate()
-    {
-        _rigidbody.AddForce(0, 0, _speed * Time.deltaTime);
-
-        if (Input.GetKey("a"))
-            Move(-1.0f);
-        else if (Input.GetKey("d"))
-            Move(1.0f);
-
-        if (isRoad)
-        {
-            if (Input.GetKey("e"))
-                Jump();
-
-            else if (Input.touchCount == 2)
-                Jump();
-        }
+        _rigidbody.AddForce(0, 0, _speedForward * Time.deltaTime);
     }
 
     private void Jump()
     {
-        _rigidbody.AddForce(0, _jumpHeight * Time.deltaTime, 0, ForceMode.VelocityChange);
+        if (onHit)
+            _rigidbody.AddForce(0, _jumpHeight * Time.deltaTime, 0, ForceMode.Impulse);
     }
 
-    private void Move(float HorizontalMovement)   //Метод на скорость 
+    private void Move(float HorizontalMovement)
     {
-        _rigidbody.AddForce(HorizontalMovement * _pivot * Time.deltaTime, 0, 0, ForceMode.VelocityChange);
+        if (onHit)
+        {
+            int sign = Screen.width / 2 > HorizontalMovement ? -1 : 1;
+            _rigidbody.MovePosition(_rigidbody.position + Vector3.right * sign * _speed * Time.fixedDeltaTime);
+        }
     }
 }
